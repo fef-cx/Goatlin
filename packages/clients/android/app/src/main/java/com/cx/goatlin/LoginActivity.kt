@@ -30,6 +30,7 @@ import com.cx.goatlin.helpers.PreferenceHelper
 import com.cx.goatlin.models.Account
 import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.Exception
+import org.mindrot.jbcrypt.BCrypt
 
 /**
  * A login screen that offers login via email/password.
@@ -89,8 +90,8 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
     /**
      * Attempts to sign in the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the errors are presented and
-     * no actual login attempt is made.
+     * If there are form errors (invalid email, missing fields, etc.), the
+     * errors are presented and no actual login attempt is made.
      */
     private fun attemptLogin() {
         if (mAuthTask != null) {
@@ -235,12 +236,12 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 try {
                     val account: Account = DatabaseHelper(applicationContext).getAccount(mUsername)
 
-                    if (mPassword != account.password) {
-                        return false;
+                    if (!BCrypt.checkpw(mPassword, account.password)) {
+                        return false
                     }
 
                     val prefs: SharedPreferences = applicationContext.getSharedPreferences(
-                            applicationContext.packageName, Context.MODE_PRIVATE)
+                        applicationContext.packageName, Context.MODE_PRIVATE)
                     val editor: SharedPreferences.Editor = prefs.edit()
 
                     editor.putInt("userId", account.id).apply()
